@@ -1,0 +1,3 @@
+[submodule "libkak"]
+	path = libkak
+	url = https://github.com/topisani/libkak

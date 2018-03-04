@@ -1,9 +1,13 @@
-from lspc import client
-import utils
-import libkak
 import sys
+from os import path
 from enum import IntEnum, unique
 
+# add libkak dir to include path
+sys.path.insert(1, path.join(path.dirname(path.abspath(__file__)), "libkak"))
+
+import utils
+import libkak
+from lspc import client
 
 @unique
 class SymbolKind(IntEnum):
