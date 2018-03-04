@@ -2,9 +2,9 @@
 
 kakoune-cquery is a [kakoune](kakoune.org) extension for [cquery](https://github.com/jacobdufault/cquery), a low-latency language server supporting multi-million line C++ code-bases, powered by libclang.
 
-This repo is also a fork of [danr/libkak](https://github.com/danr/libkak), a python library for interacting with kakoune and lsp. Therefore it will also let you use other lsp servers for other languages. We will try to get the required changes upstreamed, or at least move our libkak into its own repo. For now, this is the easiest way to experiment with it though.
+kakoune-cquery is based on [danr/libkak](https://github.com/danr/libkak), a python library for interacting with kakoune and lsp.
 
-These are the lsp features that kakoune-cquery currently supports
+These are the lsp features that libkak currently supports
 
 * diagnostics
 * find definition/references
@@ -13,7 +13,7 @@ These are the lsp features that kakoune-cquery currently supports
 * hover messages
 * renaming
 
-Additionally, it supports these cquery specific features:
+Additionally, kakoune-cquery supports these cquery specific features:
 
 * semantic highlighting
 
@@ -81,4 +81,26 @@ def cquery-start %{
         ) > /dev/null 2>&1 < /dev/null &
     }
 }
+```
+
+## Semantic Highlighting
+
+To see semantic highlighting, you have to add the faces to your colorscheme. There are currently no defaults.
+
+```kak
+face cqueryTypes                 type
+face cqueryEnums                 type
+face cqueryTypeAliases           type
+face cqueryTemplateParameters    variable
+face cqueryFreeStandingFunctions function
+face cqueryMemberFunctions       yellow,  default +i
+face cqueryStaticMemberFunctions yellow,  default
+face cqueryFreeStandingVariables variable
+face cqueryGlobalVariables       variable
+face cqueryStaticMemberVariables variable
+face cqueryMemberVariables       blue,    default +i
+face cqueryParameters            variable 
+face cqueryEnumConstants         variable
+face cqueryNamespaces            module
+face cqueryMacros                red,     default
 ```
