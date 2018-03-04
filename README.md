@@ -17,6 +17,8 @@ Additionally, it supports these cquery specific features:
 
 * semantic highlighting
 
+![](https://image.ibb.co/j1nPnn/image.png)
+
 ## Quickstart
 Currently, you need to start cquery using a script like this one:
 ```sh
