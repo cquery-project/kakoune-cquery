@@ -7,7 +7,7 @@ sys.path.insert(1, path.join(path.dirname(path.abspath(__file__)), "libkak"))
 
 import utils
 import libkak
-from lspc import client
+import lspc
 
 @unique
 class SymbolKind(IntEnum):
@@ -105,39 +105,45 @@ def face_for_symbol(symbol):
         return 'cqueryMacros'
 
 
-@client.message_handler_named("$cquery/publishSemanticHighlighting")
-def cquery_publishSemanticHighlighting(filetype, params):
-    print("published semantic highlighting")
-    buffile = utils.uri_to_file(params['uri'])
-    clientp = client.client_editing.get((filetype, buffile))
-    if not clientp:
-        print("No client found for {} {}".format(filetype, buffile))
-        print("client_editing: {}".format(client.client_editing))
-        return
-    r = libkak.Remote.onclient(client.session, clientp, sync=False)
+def make_cquery_client():
+    client = lspc.makeClient()
 
-    @r
-    def _(timestamp, pipe):
-        flags = [str(timestamp)]
+    @client.message_handler_named("$cquery/publishSemanticHighlighting")
+    def cquery_publishSemanticHighlighting(filetype, params):
+        print("published semantic highlighting")
+        buffile = utils.uri_to_file(params['uri'])
+        clientp = client.client_editing.get((filetype, buffile))
+        if not clientp:
+            print("No client found for {} {}".format(filetype, buffile))
+            print("client_editing: {}".format(client.client_editing))
+            return
+        r = libkak.Remote.onclient(client.session, clientp, sync=False)
 
-        for hl in params['symbols']:
-            face = face_for_symbol(hl)
-            if face is None:
-                print("No face found for {}".format(hl))
-                continue
-            for range in hl['ranges']:
-                (line0, col0), (line1, col1) = utils.range(range)
-                flags.append("{}.{},{}.{}|{}".format(line0, col0, line1, col1, face))
+        @r
+        def _(timestamp, pipe):
+            flags = [str(timestamp)]
 
-        # todo:Set for the other buffers too (but they need to be opened)
-        msg = 'try %{add-highlighter buffer/ ranges cquery_semhl}\n'
-        msg += 'set buffer=' + buffile + ' cquery_semhl '
-        msg += utils.single_quoted(':'.join(flags))
-        print(msg)
-        pipe(msg)
+            for hl in params['symbols']:
+                face = face_for_symbol(hl)
+                if face is None:
+                    print("No face found for {}".format(hl))
+                    continue
+                for range in hl['ranges']:
+                    (line0, col0), (line1, col1) = utils.range(range)
+                    flags.append("{}.{},{}.{}|{}".format(line0, col0, line1, col1, face))
+
+            # todo:Set for the other buffers too (but they need to be opened)
+            msg = 'try %{add-highlighter buffer/ ranges cquery_semhl}\n'
+            msg += 'set buffer=' + buffile + ' cquery_semhl '
+            msg += utils.single_quoted(':'.join(flags))
+            print(msg)
+            pipe(msg)
+
+    return client
 
 
+# Run
 if __name__ == '__main__':
-    client.main(sys.argv[1], messages="""
+    make_cquery_client().main(sys.argv[1], messages="""
         try %{declare-option range-specs cquery_semhl}
         """)
